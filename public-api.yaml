@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  version: 4.0.0
+  version: 4.1.0
   title: SunRocks API
   termsOfService: "https://www.sunrocks.at/"
   contact:
@@ -15,6 +15,42 @@ paths:
       responses:
         "204":
           description: no content
+  /insurances/{insuranceId}:
+    get:
+      summary: Get Information about an insurance
+      parameters:
+        - in: path
+          name: insuranceId
+          type: string
+          format: uuid
+          required: true
+          description: Id of the insurance
+      responses:
+        "200":
+          description: Found
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              customer_name:
+                type: string
+              customer_number:
+                type: string
+              inception_date:
+                type: string
+                format: date-time
+              insurance_end:
+                type: string
+                format: date-time
+              state:
+                type: string
+                enum: [canceled, draft, review, activated, expired, uncovered]
+            xml:
+              name: GetInsuranceResponse
+        "404":
+          description: NotFound
   /insurances:
     post:
       summary: Neue Versicherung anlegen

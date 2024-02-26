@@ -1,4 +1,4 @@
 open with http://editor.swagger.io/#/
 
 or use this link:
-https://editor.swagger.io/?url=https://raw.githubusercontent.com/trigo-at/sunrocks-public-api-docs/master/public-api.yaml
+https://editor.swagger.io/?https://raw.githubusercontent.com/essential-code-studio/sunrocks-public-api-docs/main/public-api.yaml
