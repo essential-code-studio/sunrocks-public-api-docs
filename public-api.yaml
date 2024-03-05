@@ -15,16 +15,15 @@ paths:
       responses:
         "204":
           description: no content
-  /insurances/{insuranceId}:
+  /insurances/{identificationNumber}:
     get:
       summary: Get Information about an insurance
       parameters:
         - in: path
-          name: insuranceId
+          name: identificationNumber
           type: string
-          format: uuid
           required: true
-          description: Id of the insurance
+          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
       responses:
         "200":
           description: Found
