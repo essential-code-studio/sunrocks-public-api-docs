@@ -1,13 +1,12 @@
-swagger: "2.0"
+openapi: 3.0.1
 info:
-  version: 4.1.0
   title: SunRocks API
-  termsOfService: "https://www.sunrocks.at/"
+  termsOfService: https://www.sunrocks.at/
   contact:
     email: office@sunrocks.at
-host: integration.sunrocks.at
-schemes:
-  - https
+  version: 4.1.0
+servers:
+  - url: https://integration.sunrocks.at/
 paths:
   /alive:
     get:
@@ -15,549 +14,429 @@ paths:
       responses:
         "204":
           description: no content
+          content: {}
   /insurances/{identificationNumber}:
     get:
       summary: Get Information about an insurance
       parameters:
-        - in: path
-          name: identificationNumber
-          type: string
-          required: true
+        - name: identificationNumber
+          in: path
           description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Found
-          schema:
-            type: object
-            properties:
-              id:
-                type: string
-                format: uuid
-              customer_name:
-                type: string
-              customer_number:
-                type: string
-              inception_date:
-                type: string
-                format: date-time
-              insurance_end:
-                type: string
-                format: date-time
-              state:
-                type: string
-                enum: [canceled, draft, review, activated, expired, uncovered]
-            xml:
-              name: GetInsuranceResponse
+          content:
+            "*/*":
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  customer_name:
+                    type: string
+                  customer_number:
+                    type: string
+                  inception_date:
+                    type: string
+                    format: date-time
+                  insurance_end:
+                    type: string
+                    format: date-time
+                  state:
+                    type: string
+                    enum:
+                      - canceled
+                      - draft
+                      - review
+                      - activated
+                      - expired
+                      - uncovered
+                xml:
+                  name: GetInsuranceResponse
         "404":
           description: NotFound
+          content: {}
   /insurances:
     post:
       summary: Neue Versicherung anlegen
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - multipart/form-data
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - city
+                - customerName
+                - customerNumber
+                - email
+                - inceptionDate
+                - inputTaxDeduction
+                - insuranceCode
+                - insuranceRetailPrice
+                - isCompany
+                - manufacturer
+                - model
+                - retailPrice
+                - sellingDate
+                - serialNumber
+                - storeNumber
+                - street
+                - zipCode
+              type: object
+              properties:
+                invoice:
+                  type: string
+                  description: Rechnung (PDF)
+                  format: binary
+                invoiceNumber:
+                  type: string
+                  description:
+                    Rechnungsnummer (optional - wird nicht automatisch
+                    aus dem Filenamen uebernommen)
+                storeNumber:
+                  type: string
+                  description: Filialen ID (wird pro Filiale bekannt gegeben)
+                employeeNumber:
+                  type: string
+                  description: externe Mitarbeiter Nummer
+                insuranceCode:
+                  type: string
+                  description: Code der gewählten Versicherung
+                inceptionDate:
+                  type: string
+                  description: Versicherungsbeginn
+                  format: date
+                manufacturer:
+                  type: string
+                  description: Hersteller des Gerätes
+                model:
+                  type: string
+                  description: "Modell (zB iPhone 6S,...)"
+                serialNumber:
+                  type: string
+                  description: Seriennummer
+                retailPrice:
+                  type: number
+                  description:
+                    Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
+                    der verlinkten Versicherung liegen. Wenn nicht wird ein Fehler
+                    (400-Bad Request) geliefert)
+                insuranceRetailPrice:
+                  type: number
+                  description: Verkaufspreis der Versicherung
+                sellingDate:
+                  type: string
+                  description: Verkaufsdatum
+                  format: date
+                customerNumber:
+                  type: string
+                  description: Kundennummer (aus externem System)
+                isCompany:
+                  type: boolean
+                  description: Firma ja/nein
+                inputTaxDeduction:
+                  type: boolean
+                  description: Vorsteuerabzug ja/nein
+                customerName:
+                  type: string
+                  description: Firmenname (wenn Firma) oder Vor- und Nachname
+                street:
+                  type: string
+                  description: Straße + Nummer
+                zipCode:
+                  type: string
+                  description: PLZ
+                city:
+                  type: string
+                  description: Stadt
+                country:
+                  type: string
+                  description: Land (optional)
+                vat:
+                  type: string
+                  description:
+                    UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
+                    wurde
+                email:
+                  type: string
+                  description: E-Mail Adresse
+                  format: email
+        required: true
       responses:
         "201":
           description: Created
-          schema:
-            type: object
-            properties:
-              resId:
-                type: string
-            xml:
-              name: CreateSaleResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resId:
+                    type: string
+                xml:
+                  name: CreateSaleResponse
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  resId:
+                    type: string
+                xml:
+                  name: CreateSaleResponse
         "400":
           description: Bad Request
+          content: {}
         "401":
           description: Unauthorized
+          content: {}
         "403":
           description: Forbidden
-      parameters:
-        - in: formData
-          name: invoice
-          type: file
-          description: Rechnung (PDF)
-        - in: formData
-          name: invoiceNumber
-          type: string
-          description: Rechnungsnummer (optional - wird nicht automatisch aus dem Filenamen uebernommen)
-        - in: formData
-          name: storeNumber
-          type: string
-          required: true
-          description: Filialen ID (wird pro Filiale bekannt gegeben)
-        - in: formData
-          name: employeeNumber
-          type: string
-          description: externe Mitarbeiter Nummer
-        - in: formData
-          name: insuranceCode
-          type: string
-          required: true
-          description: Code der gewählten Versicherung
-        - in: formData
-          name: inceptionDate
-          type: string
-          format: date
-          required: true
-          description: Versicherungsbeginn
-        - in: formData
-          name: manufacturer
-          type: string
-          required: true
-          description: Hersteller des Gerätes
-        - in: formData
-          name: model
-          type: string
-          required: true
-          description: "Modell (zB iPhone 6S,...)"
-        - in: formData
-          name: serialNumber
-          type: string
-          required: true
-          description: Seriennummer
-        - in: formData
-          name: retailPrice
-          type: number
-          required: true
-          description: Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches der verlinkten Versicherung liegen. Wenn nicht wird ein Fehler (400-Bad Request) geliefert)
-        - in: formData
-          name: insuranceRetailPrice
-          type: number
-          required: true
-          description: Verkaufspreis der Versicherung
-        - in: formData
-          name: sellingDate
-          type: string
-          format: date
-          required: true
-          description: Verkaufsdatum
-        - in: formData
-          name: customerNumber
-          type: string
-          required: true
-          description: Kundennummer (aus externem System)
-        - in: formData
-          name: isCompany
-          required: true
-          type: boolean
-          description: Firma ja/nein
-        - in: formData
-          name: inputTaxDeduction
-          type: boolean
-          required: true
-          description: Vorsteuerabzug ja/nein
-        - in: formData
-          name: customerName
-          type: string
-          required: true
-          description: Firmenname (wenn Firma) oder Vor- und Nachname
-        - in: formData
-          name: street
-          type: string
-          required: true
-          description: Straße + Nummer
-        - in: formData
-          name: zipCode
-          type: string
-          required: true
-          description: PLZ
-        - in: formData
-          name: city
-          type: string
-          required: true
-          description: Stadt
-        - in: formData
-          name: country
-          type: string
-          description: Land (optional)
-        - in: formData
-          name: vat
-          type: string
-          description: UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt wurde
-        - in: formData
-          name: email
-          type: string
-          format: email
-          required: true
-          description: E-Mail Adresse
+          content: {}
   /grave-insurances:
     post:
       summary: Neue Grabstellenversicherung anlegen
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - multipart/form-data
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - city
+                - customerName
+                - customerNumber
+                - email
+                - graveNumber
+                - inceptionDate
+                - insuranceCode
+                - insuranceRetailPrice
+                - sellingDate
+                - storeNumber
+                - street
+                - zipCode
+              type: object
+              properties:
+                invoice:
+                  type: string
+                  description: "Rechnung (PDF, JPEG, PNG)"
+                  format: binary
+                storeNumber:
+                  type: string
+                  description: Filialen ID (wird pro Filiale bekannt gegeben)
+                insuranceCode:
+                  type: string
+                  description: Code der gewählten Versicherung
+                inceptionDate:
+                  type: string
+                  description: Versicherungsbeginn
+                  format: date
+                graveNumber:
+                  type: string
+                  description: Identifikationsnnummer des Grabes (Grabadresse)
+                insuranceRetailPrice:
+                  type: number
+                  description: Verkaufspreis der Versicherung
+                sellingDate:
+                  type: string
+                  description: Verkaufsdatum
+                  format: date
+                customerNumber:
+                  type: string
+                  description: Kundennummer (aus externem System)
+                customerName:
+                  type: string
+                  description: Vor- und Nachname
+                street:
+                  type: string
+                  description: Straße + Nummer
+                zipCode:
+                  type: string
+                  description: PLZ
+                city:
+                  type: string
+                  description: Stadt
+                country:
+                  type: string
+                  description: Land (optional)
+                email:
+                  type: string
+                  description: E-Mail Adresse
+                  format: email
+        required: true
       responses:
         "201":
           description: Created
-          schema:
-            type: object
-            properties:
-              insurance_id:
-                type: string
-            xml:
-              name: CreateGraveInsuranceResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  insurance_id:
+                    type: string
+                xml:
+                  name: CreateGraveInsuranceResponse
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  insurance_id:
+                    type: string
+                xml:
+                  name: CreateGraveInsuranceResponse
         "400":
           description: Bad Request
+          content: {}
         "401":
           description: Unauthorized
+          content: {}
         "403":
           description: Forbidden
-      parameters:
-        - in: formData
-          name: invoice
-          type: file
-          description: Rechnung (PDF, JPEG, PNG)
-        - in: formData
-          name: storeNumber
-          type: string
-          required: true
-          description: Filialen ID (wird pro Filiale bekannt gegeben)
-        - in: formData
-          name: insuranceCode
-          type: string
-          required: true
-          description: Code der gewählten Versicherung
-        - in: formData
-          name: inceptionDate
-          type: string
-          format: date
-          required: true
-          description: Versicherungsbeginn
-        - in: formData
-          name: graveNumber
-          type: string
-          required: true
-          description: Identifikationsnnummer des Grabes (Grabadresse)
-        - in: formData
-          name: insuranceRetailPrice
-          type: number
-          required: true
-          description: Verkaufspreis der Versicherung
-        - in: formData
-          name: sellingDate
-          type: string
-          format: date
-          required: true
-          description: Verkaufsdatum
-        - in: formData
-          name: customerNumber
-          type: string
-          required: true
-          description: Kundennummer (aus externem System)
-        - in: formData
-          name: customerName
-          type: string
-          required: true
-          description: Vor- und Nachname
-        - in: formData
-          name: street
-          type: string
-          required: true
-          description: Straße + Nummer
-        - in: formData
-          name: zipCode
-          type: string
-          required: true
-          description: PLZ
-        - in: formData
-          name: city
-          type: string
-          required: true
-          description: Stadt
-        - in: formData
-          name: country
-          type: string
-          description: Land (optional)
-        - in: formData
-          name: email
-          type: string
-          format: email
-          required: true
-          description: E-Mail Adresse
-  /offer:
+          content: {}
+  /account:
     post:
-      summary: Neues Angebot anlegen
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - multipart/form-data
+      summary: Neuen Account anlegen
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - email
+                - name
+                - address_street
+                - address_zipcode
+                - address_city
+                - external_customer_number
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: E-Mail Adresse für den Zugang zum Kund:innenportal
+                name:
+                  type: string
+                  description: Name (Person oder Firma)
+                phone:
+                  type: string
+                  description: Telefonnummer
+                is_company:
+                  type: boolean
+                  description: Firma ja/nein
+                  default: false
+                input_tax_deduction:
+                  type: boolean
+                  description: Vorsteuerabzug ja/nein
+                  default: false
+                vat:
+                  type: string
+                  description: UID Nummer (bei Firmen)
+                address_street:
+                  type: string
+                  description: Straße und Hausnummer
+                address_zipcode:
+                  type: string
+                  description: PLZ
+                address_city:
+                  type: string
+                  description: Ort
+                address_country:
+                  type: string
+                  description: Land
+                  default: "Österreich"
+                birthday:
+                  type: string
+                  description: Geburtsdatum (bei Personen)
+                  format: date
+                external_customer_number:
+                  type: string
+                  description: Kund:innenummer externes System (z.B. Mitgliedsnummer)
+        required: true
       responses:
         "201":
           description: successfully created
-          schema:
-            type: object
-            properties:
-              offerId:
-                type: string
-            xml:
-              name: CreateOfferResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
         "400":
           description: Bad Request
+          content: {}
         "401":
           description: Unauthorized
+          content: {}
         "403":
           description: Forbidden
-      parameters:
-        - in: formData
-          name: storeNumber
-          type: string
-          required: true
-          description: Filialen ID (wird pro Filiale bekannt gegeben)
-        - in: formData
-          name: riskName
-          type: string
-          required: true
-          enum:
-            - elektrofahrrad
-            - fahrrad
-            - smartphone
-            - tablet
-            - notebook-pc
-            - wearables
-          description: Name des Risikos
-        - in: formData
-          name: manufacturer
-          type: string
-          description: Hersteller
-        - in: formData
-          name: model
-          type: string
-          description: Modellbezeichnung
-        - in: formData
-          name: identificationNumber
-          type: string
-          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
-        - in: formData
-          name: retailPrice
-          type: number
-          required: true
-          description: Verkaufspreis lt. Rechnung
-        - in: formData
-          name: sellingDate
-          type: string
-          format: date
-          required: true
-          description: Verkaufsdatum
-        - in: formData
-          name: customerName
-          type: string
-          required: true
-          description: Firmenname (wenn Firma) oder Vor- und Nachname
-        - in: formData
-          name: isCompany
-          required: true
-          type: boolean
-          description: Firma ja/nein
-        - in: formData
-          name: inputTaxDeduction
-          type: boolean
-          required: true
-          description: Vorsteuerabzug ja/nein
-        - in: formData
-          name: street
-          type: string
-          required: true
-          description: Straße + Nummer
-        - in: formData
-          name: zipCode
-          type: string
-          required: true
-          description: PLZ
-        - in: formData
-          name: city
-          type: string
-          required: true
-          description: Stadt
-        - in: formData
-          name: country
-          type: string
-          description: Land (optional)
-        - in: formData
-          name: vat
-          type: string
-          description: UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt wurde
-        - in: formData
-          name: email
-          type: string
-          format: email
-          required: true
-          description: E-Mail Adresse
-        - in: formData
-          name: phone
-          type: string
-          description: Telefonnummer
-  /update-identification-number:
-    post:
-      summary: Identifikationsnummer eines Angebots nachträglich aktualisieren
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - multipart/form-data
+          content: {}
+  /account/{external_customer_number}:
+    put:
+      summary: Account aktualisieren
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: E-Mail Adresse für den Zugang zum Kund:innenportal
+                name:
+                  type: string
+                  description: Name (Person oder Firma)
+                phone:
+                  type: string
+                  description: Telefonnummer
+                is_company:
+                  type: boolean
+                  description: Firma ja/nein
+                  default: false
+                input_tax_deduction:
+                  type: boolean
+                  description: Vorsteuerabzug ja/nein
+                  default: false
+                vat:
+                  type: string
+                  description: UID Nummer (bei Firmen)
+                address_street:
+                  type: string
+                  description: Straße und Hausnummer
+                address_zipcode:
+                  type: string
+                  description: PLZ
+                address_city:
+                  type: string
+                  description: Ort
+                address_country:
+                  type: string
+                  description: Land
+                  default: "Österreich"
+                birthday:
+                  type: string
+                  description: Geburtsdatum (bei Personen)
+                  format: date
+        required: true
       responses:
         "200":
           description: successfully updated
-          schema:
-            type: object
-            properties:
-              offerId:
-                type: string
-            xml:
-              name: CreateOfferResponse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
         "400":
           description: Bad Request
+          content: {}
         "401":
           description: Unauthorized
+          content: {}
         "403":
           description: Forbidden
-      parameters:
-        - in: formData
-          name: identificationNumber
-          type: string
-          required: true
-          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
-        - in: formData
-          name: offerId
-          type: string
-          format: uuid
-          required: true
-          description: ID des Angebotes
-  /claims:
-    post:
-      summary: Neuen Schadenfall anlegen
-      produces:
-        - application/json
-        - application/xml
-      consumes:
-        - multipart/form-data
-      responses:
-        "201":
-          description: successfully created
-          schema:
-            type: object
-            properties:
-              claimNumber:
-                type: string
-              state:
-                type: string
-            xml:
-              name: CreateClaimResponse
-        "400":
-          description: Bad Request
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
-      parameters:
-        - in: formData
-          name: claimNumber
-          type: string
-          required: true
-          description: Externe Ticketnummer
-        - in: formData
-          name: claimType
-          type: string
-          required: true
-          enum:
-            - feuer-blitz
-            - bruchschaden
-            - displayschaden
-            - einbruchdiebstahl
-            - bedienungsfehler
-            - flüssigkeitsschaden
-            - sonstiges
-            - raub
-            - vandalismus
-            - garantieschaden
-            - diebstahl
-            - unfall
-            - akku-defekt
-            - identifikationsnummerntausch
-            - feuer-explosion
-          description: Schadensart
-        - in: formData
-          name: repairInvoice
-          type: file
-          required: true
-          description: Reparaturrechnung
-        - in: formData
-          name: invoice
-          type: file
-          required: true
-          description: Rechnung (PDF)
-        - in: formData
-          name: complain
-          type: file
-          description: Polizeiliche Anzeige
-        - in: formData
-          name: image1
-          type: file
-          required: true
-          description: Bild
-        - in: formData
-          name: image2
-          type: file
-          required: true
-          description: Bild
-        - in: formData
-          name: image3
-          type: file
-          description: Bild
-        - in: formData
-          name: image4
-          type: file
-          description: Bild
-        - in: formData
-          name: image5
-          type: file
-          description: Bild
-        - in: formData
-          name: storeNumber
-          type: string
-          required: true
-          description: Filialen ID (wird pro Filiale bekannt gegeben)
-        - in: formData
-          name: identificationNumber
-          type: string
-          required: true
-          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
-        - in: formData
-          name: newIdentificationNumber
-          type: string
-          description: Neue Identifikationsnummer
-        - in: formData
-          name: newIdentificationNumberReason
-          type: string
-          description: Grund für neue Identifikationsnummer
-        - in: formData
-          name: damageDate
-          type: string
-          format: date
-          required: true
-          description: Schadendatum
-        - in: formData
-          name: description
-          type: string
-          required: true
-          description: Beschreibung Hergang
-        - in: formData
-          name: fairValue
-          type: number
-          required: true
-          description: Schadenhöhe
-        - in: formData
-          name: replacementValue
-          type: number
-          required: true
-          description: Neuwert am Schadentag
-securityDefinitions:
-  api_key:
-    type: apiKey
-    name: x-api-key
-    in: header
+          content: {}
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: x-api-key
+      in: header
