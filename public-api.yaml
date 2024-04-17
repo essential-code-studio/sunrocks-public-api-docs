@@ -6,7 +6,7 @@ info:
     email: office@sunrocks.at
   version: 4.1.0
 servers:
-  - url: https://integration.sunrocks.at/
+- url: https://integration.sunrocks.at/
 paths:
   /alive:
     get:
@@ -19,17 +19,17 @@ paths:
     get:
       summary: Get Information about an insurance
       parameters:
-        - name: identificationNumber
-          in: path
-          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
-          required: true
-          schema:
-            type: string
+      - name: identificationNumber
+        in: path
+        description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Found
           content:
-            "*/*":
+            '*/*':
               schema:
                 type: object
                 properties:
@@ -49,12 +49,12 @@ paths:
                   state:
                     type: string
                     enum:
-                      - canceled
-                      - draft
-                      - review
-                      - activated
-                      - expired
-                      - uncovered
+                    - canceled
+                    - draft
+                    - review
+                    - activated
+                    - expired
+                    - uncovered
                 xml:
                   name: GetInsuranceResponse
         "404":
@@ -68,23 +68,23 @@ paths:
           multipart/form-data:
             schema:
               required:
-                - city
-                - customerName
-                - customerNumber
-                - email
-                - inceptionDate
-                - inputTaxDeduction
-                - insuranceCode
-                - insuranceRetailPrice
-                - isCompany
-                - manufacturer
-                - model
-                - retailPrice
-                - sellingDate
-                - serialNumber
-                - storeNumber
-                - street
-                - zipCode
+              - city
+              - customerName
+              - customerNumber
+              - email
+              - inceptionDate
+              - inputTaxDeduction
+              - insuranceCode
+              - insuranceRetailPrice
+              - isCompany
+              - manufacturer
+              - model
+              - retailPrice
+              - sellingDate
+              - serialNumber
+              - storeNumber
+              - street
+              - zipCode
               type: object
               properties:
                 invoice:
@@ -93,8 +93,7 @@ paths:
                   format: binary
                 invoiceNumber:
                   type: string
-                  description:
-                    Rechnungsnummer (optional - wird nicht automatisch
+                  description: Rechnungsnummer (optional - wird nicht automatisch
                     aus dem Filenamen uebernommen)
                 storeNumber:
                   type: string
@@ -120,8 +119,7 @@ paths:
                   description: Seriennummer
                 retailPrice:
                   type: number
-                  description:
-                    Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
+                  description: Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
                     der verlinkten Versicherung liegen. Wenn nicht wird ein Fehler
                     (400-Bad Request) geliefert)
                 insuranceRetailPrice:
@@ -157,8 +155,7 @@ paths:
                   description: Land (optional)
                 vat:
                   type: string
-                  description:
-                    UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
+                  description: UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
                     wurde
                 email:
                   type: string
@@ -202,18 +199,18 @@ paths:
           multipart/form-data:
             schema:
               required:
-                - city
-                - customerName
-                - customerNumber
-                - email
-                - graveNumber
-                - inceptionDate
-                - insuranceCode
-                - insuranceRetailPrice
-                - sellingDate
-                - storeNumber
-                - street
-                - zipCode
+              - city
+              - customerName
+              - customerNumber
+              - email
+              - graveNumber
+              - inceptionDate
+              - insuranceCode
+              - insuranceRetailPrice
+              - sellingDate
+              - storeNumber
+              - street
+              - zipCode
               type: object
               properties:
                 invoice:
@@ -300,12 +297,12 @@ paths:
           multipart/form-data:
             schema:
               required:
-                - email
-                - name
-                - address_street
-                - address_zipcode
-                - address_city
-                - external_customer_number
+              - email
+              - name
+              - address_street
+              - address_zipcode
+              - address_city
+              - external_customer_number
               type: object
               properties:
                 email:
@@ -340,7 +337,7 @@ paths:
                 address_country:
                   type: string
                   description: Land
-                  default: "Österreich"
+                  default: 'Österreich'
                 birthday:
                   type: string
                   description: Geburtsdatum (bei Personen)
@@ -409,7 +406,7 @@ paths:
                 address_country:
                   type: string
                   description: Land
-                  default: "Österreich"
+                  default: 'Österreich'
                 birthday:
                   type: string
                   description: Geburtsdatum (bei Personen)
