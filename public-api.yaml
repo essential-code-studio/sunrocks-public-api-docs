@@ -6,7 +6,7 @@ info:
     email: office@sunrocks.at
   version: 4.1.0
 servers:
-- url: https://integration.sunrocks.at/
+  - url: https://integration.sunrocks.at/
 paths:
   /alive:
     get:
@@ -19,17 +19,17 @@ paths:
     get:
       summary: Get Information about an insurance
       parameters:
-      - name: identificationNumber
-        in: path
-        description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
-        required: true
-        schema:
-          type: string
+        - name: identificationNumber
+          in: path
+          description: "Identifikationsnummer (Seriennummer, Rahmennnummer,...)"
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: Found
           content:
-            '*/*':
+            "*/*":
               schema:
                 type: object
                 properties:
@@ -49,12 +49,12 @@ paths:
                   state:
                     type: string
                     enum:
-                    - canceled
-                    - draft
-                    - review
-                    - activated
-                    - expired
-                    - uncovered
+                      - canceled
+                      - draft
+                      - review
+                      - activated
+                      - expired
+                      - uncovered
                 xml:
                   name: GetInsuranceResponse
         "404":
@@ -68,23 +68,23 @@ paths:
           multipart/form-data:
             schema:
               required:
-              - city
-              - customerName
-              - customerNumber
-              - email
-              - inceptionDate
-              - inputTaxDeduction
-              - insuranceCode
-              - insuranceRetailPrice
-              - isCompany
-              - manufacturer
-              - model
-              - retailPrice
-              - sellingDate
-              - serialNumber
-              - storeNumber
-              - street
-              - zipCode
+                - city
+                - customerName
+                - customerNumber
+                - email
+                - inceptionDate
+                - inputTaxDeduction
+                - insuranceCode
+                - insuranceRetailPrice
+                - isCompany
+                - manufacturer
+                - model
+                - retailPrice
+                - sellingDate
+                - serialNumber
+                - storeNumber
+                - street
+                - zipCode
               type: object
               properties:
                 invoice:
@@ -93,7 +93,8 @@ paths:
                   format: binary
                 invoiceNumber:
                   type: string
-                  description: Rechnungsnummer (optional - wird nicht automatisch
+                  description:
+                    Rechnungsnummer (optional - wird nicht automatisch
                     aus dem Filenamen uebernommen)
                 storeNumber:
                   type: string
@@ -119,7 +120,8 @@ paths:
                   description: Seriennummer
                 retailPrice:
                   type: number
-                  description: Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
+                  description:
+                    Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
                     der verlinkten Versicherung liegen. Wenn nicht wird ein Fehler
                     (400-Bad Request) geliefert)
                 insuranceRetailPrice:
@@ -155,7 +157,8 @@ paths:
                   description: Land (optional)
                 vat:
                   type: string
-                  description: UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
+                  description:
+                    UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
                     wurde
                 email:
                   type: string
@@ -199,18 +202,18 @@ paths:
           multipart/form-data:
             schema:
               required:
-              - city
-              - customerName
-              - customerNumber
-              - email
-              - graveNumber
-              - inceptionDate
-              - insuranceCode
-              - insuranceRetailPrice
-              - sellingDate
-              - storeNumber
-              - street
-              - zipCode
+                - city
+                - customerName
+                - customerNumber
+                - email
+                - graveNumber
+                - inceptionDate
+                - insuranceCode
+                - insuranceRetailPrice
+                - sellingDate
+                - storeNumber
+                - street
+                - zipCode
               type: object
               properties:
                 invoice:
@@ -297,12 +300,12 @@ paths:
           multipart/form-data:
             schema:
               required:
-              - email
-              - name
-              - address_street
-              - address_zipcode
-              - address_city
-              - external_customer_number
+                - email
+                - name
+                - address_street
+                - address_zipcode
+                - address_city
+                - external_customer_number
               type: object
               properties:
                 email:
@@ -337,7 +340,7 @@ paths:
                 address_country:
                   type: string
                   description: Land
-                  default: 'Österreich'
+                  default: "Österreich"
                 birthday:
                   type: string
                   description: Geburtsdatum (bei Personen)
@@ -365,9 +368,81 @@ paths:
         "403":
           description: Forbidden
           content: {}
-  /account/{external_customer_number}:
+  /account/{account_id}/insurances:
+    post:
+      summary: Neuen Versicherung für den Account anlegen
+      parameters:
+        - name: account_id
+          in: path
+          description: Account Id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - store_number
+                - insurance_code
+                - inception_date
+                - manufacturer
+                - model
+                - identification_number
+              type: object
+              properties:
+                store_number:
+                  type: string
+                  description: Filialen ID (wird pro Filiale bekannt gegeben)
+                insurance_code:
+                  type: string
+                  description: Code der gewählten Versicherung
+                inception_date:
+                  type: string
+                  format: date-time
+                  description: Versicherungsbeginn
+                manufacturer:
+                  type: string
+                  description: Hersteller des Gerätes
+                model:
+                  type: string
+                  description: "Modell (zB iPhone 6S,...)"
+                identification_number:
+                  type: string
+                  description: Identifikationsnummer (z.B Rahmengestellnummer)
+
+        required: true
+      responses:
+        "201":
+          description: successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
+        "403":
+          description: Forbidden
+          content: {}
+  /account/{account_id}:
     put:
       summary: Account aktualisieren
+      parameters:
+        - name: account_id
+          in: path
+          description: Account Id
+          required: true
+          schema:
+            type: string
+            format: uuid
       requestBody:
         content:
           multipart/form-data:
@@ -406,7 +481,7 @@ paths:
                 address_country:
                   type: string
                   description: Land
-                  default: 'Österreich'
+                  default: "Österreich"
                 birthday:
                   type: string
                   description: Geburtsdatum (bei Personen)
