@@ -386,6 +386,7 @@ paths:
               required:
                 - store_number
                 - insurance_code
+                - selling_date
                 - inception_date
                 - manufacturer
                 - model
@@ -398,6 +399,10 @@ paths:
                 insurance_code:
                   type: string
                   description: Code der gewählten Versicherung
+                selling_date:
+                  type: string
+                  format: date-time
+                  description: Verkaufsdatum
                 inception_date:
                   type: string
                   format: date-time
