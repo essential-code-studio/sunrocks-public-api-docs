@@ -4,7 +4,7 @@ info:
   termsOfService: https://www.sunrocks.at/
   contact:
     email: office@sunrocks.at
-  version: 4.1.0
+  version: 4.2.0
 servers:
   - url: https://integration.sunrocks.at/
 paths:
@@ -59,6 +59,123 @@ paths:
                   name: GetInsuranceResponse
         "404":
           description: NotFound
+          content: {}
+  /quotes:
+    post:
+      summary: Neues Angebot anlegen
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - city
+                - customerName
+                - customerNumber
+                - email
+                - inputTaxDeduction
+                - insuranceCode
+                - insuranceRetailPrice
+                - isCompany
+                - manufacturer
+                - model
+                - retailPrice
+                - sellingDate
+                - identificationNumber
+                - storeNumber
+                - street
+                - zipCode
+              type: object
+              properties:
+                storeNumber:
+                  type: string
+                  description: Filialen ID (wird pro Filiale bekannt gegeben)
+                insuranceCode:
+                  type: string
+                  description: Code der gewählten Versicherung
+                manufacturer:
+                  type: string
+                  description: Hersteller des Gerätes
+                model:
+                  type: string
+                  description: "Modell (zB iPhone 6S,...)"
+                identificationNumber:
+                  type: string
+                  description: Seriennummer
+                retailPrice:
+                  type: number
+                  description:
+                    Verkaufspreis lt. Rechnung (muss innerhalb des Abdeckungsbereiches
+                    der angebotenen Versicherung liegen. Wenn nicht wird ein Fehler
+                    (400-Bad Request) geliefert)
+                insuranceRetailPrice:
+                  type: number
+                  description: Verkaufspreis der Versicherung
+                sellingDate:
+                  type: string
+                  description: Verkaufsdatum
+                  format: date
+                customerNumber:
+                  type: string
+                  description: Kundennummer (aus externem System)
+                isCompany:
+                  type: boolean
+                  description: Firma ja/nein
+                inputTaxDeduction:
+                  type: boolean
+                  description: Vorsteuerabzug ja/nein
+                customerName:
+                  type: string
+                  description: Firmenname (wenn Firma) oder Vor- und Nachname
+                street:
+                  type: string
+                  description: Straße + Nummer
+                zipCode:
+                  type: string
+                  description: PLZ
+                city:
+                  type: string
+                  description: Stadt
+                country:
+                  type: string
+                  description: Land (optional)
+                vat:
+                  type: string
+                  description:
+                    UID Nummer; Pflichtfeld wenn inputTaxDeduction gesetzt
+                    wurde
+                email:
+                  type: string
+                  description: E-Mail Adresse
+                  format: email
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resId:
+                    type: string
+                xml:
+                  name: CreateQuoteResponse
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  resId:
+                    type: string
+                xml:
+                  name: CreateQuoteResponse
+        "400":
+          description: Bad Request
+          content: {}
+        "401":
+          description: Unauthorized
+          content: {}
+        "403":
+          description: Forbidden
           content: {}
   /insurances:
     post:
